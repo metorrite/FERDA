@@ -1,0 +1,8 @@
+*.class
+.project
+.classpath
+*.txt
+*.bat
+/.settings/
+/bin/
+/res/
