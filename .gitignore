@@ -5,5 +5,4 @@
 *.bat
 /.settings/
 /bin/
-/res/
 /target/
