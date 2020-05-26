@@ -2,20 +2,20 @@ package com.avl;
 
 import com.avl.constants.Angle;
 import com.avl.constants.PlaneType;
-import com.avl.constants.ShipStatus;
+import com.avl.constants.WeightStatus;
 
 public class Plane {
 
 	private PlaneType type;
 	private Angle angle;
 	private double weight = 0;
-	private ShipStatus weightStatus;
+	private WeightStatus weightStatus;
 	
-	public ShipStatus getWeightStatus() {
+	public WeightStatus getWeightStatus() {
 		return weightStatus;
 	}
 
-	public void setForceStatus(ShipStatus weightStatus) {
+	public void setForceStatus(WeightStatus weightStatus) {
 		this.weightStatus = weightStatus;
 	}
 

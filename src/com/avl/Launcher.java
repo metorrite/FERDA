@@ -1,7 +1,7 @@
 package com.avl;
 
-import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -22,12 +22,12 @@ public class Launcher extends Application {
     public void start(Stage stage) throws Exception {
     	Launcher.stage = stage;
     	stage.setTitle("Forness's Excellent Reliable Diving Assistant");
-    	openPage("res/ferda.fxml");
+    	openPage(Launcher.class.getResource("/ferda.fxml"));
     }
 		
-	public static void openPage(String url) {
+	public static void openPage(URL url) {
 		try {
-			Parent root = FXMLLoader.load(new File(url).toURI().toURL());
+			Parent root = FXMLLoader.load(url);
 			Scene scene = new Scene(root);
 	        stage.setScene(scene);
 	        stage.show();

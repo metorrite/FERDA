@@ -1,6 +1,6 @@
 package com.avl.constants;
 
-public enum ShipStatus {
+public enum WeightStatus {
 HEAVY,
 BALANCED,
 LIGHT;

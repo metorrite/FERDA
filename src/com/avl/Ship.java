@@ -8,7 +8,7 @@ import com.avl.constants.Compartment;
 import com.avl.constants.Constants;
 import com.avl.constants.PlaneType;
 import com.avl.constants.ShipSpeed;
-import com.avl.constants.ShipStatus;
+import com.avl.constants.WeightStatus;
 
 /*
  * 
@@ -18,30 +18,29 @@ import com.avl.constants.ShipStatus;
 
 public class Ship {
 
-	public final Map<PlaneType, Plane> planeMap = new HashMap<>();
-	public ShipStatus status = ShipStatus.BALANCED;
-	public Compartment compartment;
-	public ShipSpeed speed = ShipSpeed.ONE_THIRD;
+	private final Map<PlaneType, Plane> planeMap = new HashMap<>();
+	private WeightStatus shipWeightStatus = WeightStatus.BALANCED;
+	private Compartment compartment;
+	private ShipSpeed speed = ShipSpeed.ONE_THIRD;
+
+	private double sternCurrent, shipCurrent, bowCurrent;
+	private double totalWeight = 0;
+	private boolean needsCorrection = true;
+	private double bowCorrectionValue;
 	
-	public ShipSpeed getSpeed() {
+	private ShipSpeed getSpeed() {
 		return speed;
 	}
 
 	public void setSpeed(ShipSpeed speed) {
 		this.speed = speed;
 	}
-
-	public double sternCurrent, shipCurrent, bowCurrent;
-	public double totalWeight;
-	public boolean needsCorrection = true;
-	public double bowCorrectionValue;
-	public int neutralSternAngle;
 	
 	public boolean isNeedsCorrection() {
 		return needsCorrection;
 	}
 
-	public void setNeedsCorrection(boolean needsCorrection) {
+	private void setNeedsCorrection(boolean needsCorrection) {
 		this.needsCorrection = needsCorrection;
 	}
 
@@ -49,31 +48,23 @@ public class Ship {
 		return bowCorrectionValue;
 	}
 
-	public void setBowCorrectionValue(double bowCorrectionValue) {
+	private void setBowCorrectionValue(double bowCorrectionValue) {
 		this.bowCorrectionValue = bowCorrectionValue;
 	}
 
-	public int getNeutralSternAngle() {
-		return neutralSternAngle;
+	public WeightStatus getShipWeightStatus() {
+		return shipWeightStatus;
 	}
 
-	public void setNeutralSternAngle(int neutralSternAngle) {
-		this.neutralSternAngle = neutralSternAngle;
-	}
-
-	public ShipStatus getStatus() {
-		return status;
-	}
-
-	public void setStatus(ShipStatus status) {
-		this.status = status;
+	private void setShipWeightStatus(WeightStatus status) {
+		this.shipWeightStatus = status;
 	}
 	
 	public Compartment getCompartment() {
 		return compartment;
 	}
 
-	public void setCompartment(Compartment compartment) {
+	private void setCompartment(Compartment compartment) {
 		this.compartment = compartment;
 	}
 
@@ -109,97 +100,138 @@ public class Ship {
 		return totalWeight;
 	}
 
-	public void setTotalWeight(double totalWeight) {
+	private void setTotalWeight(double totalWeight) {
 		this.totalWeight = totalWeight;
 	}
 
 	public Map<PlaneType, Plane> getPlaneMap() {
 		return planeMap;
 	}
-
-	public double calculatePlaneWeight(PlaneType type) {
-		return calculatePlaneWeight(type, true);
-	}
 	
-	public double getNeutralSternPlaneAngle() {
-		switch(getStatus()) {
+	/**
+	 * Determines the neutral angle of the stern planes based on total weight and ships speed.
+	 * 
+	 * @return
+	 */
+	private double getNeutralSternPlaneAngle() {
+		switch(getShipWeightStatus()) {
 		case HEAVY:
-			if(speed.equals(ShipSpeed.ONE_THIRD))
-				return Math.abs(totalWeight) <= 19999 ? -2 : -3;
-			else if(speed.equals(ShipSpeed.TWO_THIRDS))
-				return Math.abs(totalWeight) <= 19999 ? -2 : Math.abs(totalWeight) >= 20000 && Math.abs(totalWeight) <= 29999 ? -3 : 
-					Math.abs(totalWeight) >= 30000 && Math.abs(totalWeight) <= 49999 ? -3.5 : -4.5;
+			if(getSpeed().equals(ShipSpeed.ONE_THIRD))
+				return Math.abs(getTotalWeight()) <= 19999 ? -2 : -3;
+			else if(getSpeed().equals(ShipSpeed.TWO_THIRDS))
+				return Math.abs(getTotalWeight()) <= 19999 ? -2 : Math.abs(getTotalWeight()) >= 20000 && Math.abs(getTotalWeight()) <= 29999 ? -3 : 
+					Math.abs(getTotalWeight()) >= 30000 && Math.abs(getTotalWeight()) <= 49999 ? -3.5 : -4.5;
 			else
-				return Math.abs(totalWeight) <= 19999 ? -1.5 : Math.abs(totalWeight) >= 20000 && Math.abs(totalWeight) <= 29999 ? -2 : 
-					Math.abs(totalWeight) >= 30000 && Math.abs(totalWeight) <= 49999 ? -2.5 : -3.5;
+				return Math.abs(getTotalWeight()) <= 19999 ? -1.5 : Math.abs(getTotalWeight()) >= 20000 && Math.abs(getTotalWeight()) <= 29999 ? -2 : 
+					Math.abs(getTotalWeight()) >= 30000 && Math.abs(getTotalWeight()) <= 49999 ? -2.5 : -3.5;
 		case LIGHT:
-			if(speed.equals(ShipSpeed.ONE_THIRD))
-				return Math.abs(totalWeight) <= 19999 ? 0 : 1;
-			else if(speed.equals(ShipSpeed.TWO_THIRDS))
-				return Math.abs(totalWeight) <= 19999 ? 0 : 
-					Math.abs(totalWeight) >= 20000 && Math.abs(totalWeight) <= 29999 ? 1 : 
-						Math.abs(totalWeight) >= 30000 && Math.abs(totalWeight) <= 49999 ? 1.5 : 3;
+			if(getSpeed().equals(ShipSpeed.ONE_THIRD))
+				return Math.abs(getTotalWeight()) <= 19999 ? 0 : 1;
+			else if(getSpeed().equals(ShipSpeed.TWO_THIRDS))
+				return Math.abs(getTotalWeight()) <= 19999 ? 0 : 
+					Math.abs(getTotalWeight()) >= 20000 && Math.abs(getTotalWeight()) <= 29999 ? 1 : 
+						Math.abs(getTotalWeight()) >= 30000 && Math.abs(getTotalWeight()) <= 49999 ? 1.5 : 3;
 			else
-				return Math.abs(totalWeight) <= 19999 ? -.5 : 
-					Math.abs(totalWeight) >= 20000 && Math.abs(totalWeight) <= 29999 ? 0 : 
-						Math.abs(totalWeight) >= 30000 && Math.abs(totalWeight) <= 49999 ? .5 : 1.5;
+				return Math.abs(getTotalWeight()) <= 19999 ? -.5 : 
+					Math.abs(getTotalWeight()) >= 20000 && Math.abs(getTotalWeight()) <= 29999 ? 0 : 
+						Math.abs(getTotalWeight()) >= 30000 && Math.abs(getTotalWeight()) <= 49999 ? .5 : 1.5;
 		default:
 			return -1;
 		}
 	}
 	
-	private ShipStatus getPlaneWeightStatus(PlaneType type) {
+	/**
+	 * Determines the status of the individual weight status for a plane type.
+	 * 
+	 * @param type The type of plane to determine the weight status of
+	 * @return the status of the weight of the plane
+	 */
+	private WeightStatus getPlaneWeightStatus(PlaneType type) {
 		if(type.equals(PlaneType.STERN))
-			return getPlane(type).getAngle().equals(Angle.DOWN) ? ShipStatus.HEAVY : getPlane(type).getAngle().equals(Angle.NEUTRAL) ?
-					ShipStatus.BALANCED : ShipStatus.LIGHT;
+			return getPlane(type).getAngle().equals(Angle.DOWN) ? WeightStatus.HEAVY : getPlane(type).getAngle().equals(Angle.NEUTRAL) ?
+					WeightStatus.BALANCED : WeightStatus.LIGHT;
 		else
-			return getPlane(type).getAngle().equals(Angle.UP) ? ShipStatus.HEAVY : getPlane(type).getAngle().equals(Angle.DOWN) ?
-					ShipStatus.LIGHT : ShipStatus.BALANCED;
+			return getPlane(type).getAngle().equals(Angle.UP) ? WeightStatus.HEAVY : getPlane(type).getAngle().equals(Angle.DOWN) ?
+					WeightStatus.LIGHT : WeightStatus.BALANCED;
 	}
 	
-	public double calculatePlaneWeight(PlaneType type, boolean correction) {
-		double value = 0;
+	/**
+	 * Calculates 
+	 * 
+	 * @param type The PlaneType you want to calculate for
+	 * @return Returns the value of the weight calculated
+	 */
+	private double calculatePlaneWeight(PlaneType type) {
 		getPlane(type).setForceStatus(getPlaneWeightStatus(type));
 		if(type.equals(PlaneType.STERN))
-			value = getPlane(type).getWeightStatus().equals(ShipStatus.HEAVY) ? Math.abs((sternCurrent - Constants.STERN_STABLE_ANGLE) * Constants.STERN) 
+			return getPlane(type).getWeightStatus().equals(WeightStatus.HEAVY) ? Math.abs((sternCurrent - Constants.STERN_STABLE_ANGLE) * Constants.STERN) 
 					: -1 * (sternCurrent - Constants.STERN_STABLE_ANGLE) * Constants.STERN;
 		else if(type.equals(PlaneType.SHIP))
-			value = getPlane(type).getWeightStatus().equals(ShipStatus.HEAVY) ? Math.abs((shipCurrent - Constants.SHIP_STABLE_ANGLE) * Constants.SHIP) 
+			return getPlane(type).getWeightStatus().equals(WeightStatus.HEAVY) ? Math.abs((shipCurrent - Constants.SHIP_STABLE_ANGLE) * Constants.SHIP) 
 					: (shipCurrent - Constants.SHIP_STABLE_ANGLE) * Constants.SHIP;
 		else
-			value = getPlane(type).getWeightStatus().equals(ShipStatus.HEAVY) ? Math.abs(bowCurrent * Constants.BOW)
+			return getPlane(type).getWeightStatus().equals(WeightStatus.HEAVY) ? Math.abs(bowCurrent * Constants.BOW)
 					: (bowCurrent * Constants.BOW);
-		return value;
 	}
 	
+	/**
+	 * Calculates the bow plane correction factor and determines if it is needed.
+	 */
 	public void calculateBowCorrectionFactor() {
-		if(getStatus().equals(ShipStatus.BALANCED) || bowCurrent == 0)
-			needsCorrection = false;
-		else
-			needsCorrection = true;
+			setNeedsCorrection((getShipWeightStatus().equals(WeightStatus.BALANCED) || bowCurrent == 0) ? false : true);
 			double correctionFactor = .4 * bowCurrent;
 			double correctedSternPlaneAngle = sternCurrent + correctionFactor;
 			if(correctedSternPlaneAngle == getNeutralSternPlaneAngle() || getCompartment().equals(Compartment.BALANCED)) {
 				setCompartment(Compartment.BALANCED);
 				setBowCorrectionValue(0);
 			} else {
-				setBowCorrectionValue(Math.abs(Constants.STERN * (Math.abs(getNeutralSternPlaneAngle() - (needsCorrection ? correctedSternPlaneAngle : sternCurrent)))));
+				//setBowCorrectionValue(Math.abs(Constants.STERN * (Math.abs(getNeutralSternPlaneAngle() - (isNeedsCorrection() ? correctedSternPlaneAngle : sternCurrent)))));
+				setBowCorrectionValue(Math.abs(Constants.STERN * (Math.abs((isNeedsCorrection() ? correctedSternPlaneAngle : sternCurrent) - getNeutralSternPlaneAngle()))));
+
 			}
 	}
 	
+	/**
+	 * Takes all the planes attached to the ship and adds their weight together.
+	 */
 	public void calculateTotalWeight() {
-		totalWeight = 0;
-		planeMap.values().forEach(plane -> totalWeight += plane.getWeight());
-		setStatus(totalWeight > 0 ? ShipStatus.HEAVY : totalWeight < 0 ? ShipStatus.LIGHT : ShipStatus.BALANCED);
-		Plane bow = getPlane(PlaneType.BOW);
-		Plane stern = getPlane(PlaneType.STERN);
+		setTotalWeight(0);
+		planeMap.values().forEach(plane -> {
+			plane.setWeight(calculatePlaneWeight(plane.getType()));
+			setTotalWeight(getTotalWeight() + plane.getWeight());
+		});
 		
-		if(bow.getWeight() > stern.getWeight()) {
+		setShipWeightStatus(getTotalWeight() > 0 ? WeightStatus.HEAVY : getTotalWeight() < 0 ? WeightStatus.LIGHT : WeightStatus.BALANCED);
+		
+		if(getPlane(PlaneType.BOW).getWeight() > getPlane(PlaneType.STERN).getWeight()) {
 			setCompartment(Compartment.FORWARD);
-		} else if(bow.getWeight() < stern.getWeight()) {
+		} else if(getPlane(PlaneType.BOW).getWeight() < getPlane(PlaneType.STERN).getWeight()) {
 			setCompartment(Compartment.AFT);
 		} else {
 			setCompartment(Compartment.BALANCED);
+		}
+	}
+	
+	/**
+	 * Creates a new plane to be added to the Ship
+	 * 
+	 * @param ship
+	 * @param plane
+	 * @return
+	 */
+	public static Plane createNewPlane(Ship ship, PlaneType plane) {
+		
+		switch(plane) {
+		
+		case STERN:
+			return new Plane(plane, ship.getSternCurrent() < -1 ? Angle.DOWN : ship.getSternCurrent() == -1 ? Angle.NEUTRAL : Angle.UP);
+		case SHIP:
+			return new Plane(plane, ship.getShipCurrent() < 0 ? Angle.DOWN : ship.getShipCurrent() == 0 ? Angle.NEUTRAL : Angle.UP);
+		case BOW:
+			return new Plane(plane, ship.getBowCurrent() < 0 ? Angle.DOWN : ship.getShipCurrent() == 0 ? Angle.NEUTRAL : Angle.UP);
+		
+		default:
+			return new Plane(PlaneType.SHIP, Angle.NEUTRAL);
 		}
 	}
 }
